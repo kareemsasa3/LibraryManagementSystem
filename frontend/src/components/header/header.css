@@ -1,0 +1,17 @@
+/*reference for flex boxes
+https://www.w3schools.com/css/css3_flexbox.asp*/
+
+
+.header > div {
+    margin: 10px;
+}
+
+.header {
+    display: flex;
+    background-color: teal;
+    align-items: center;
+}
+
+.header > div:last-of-type {
+    margin-left: auto;
+}
