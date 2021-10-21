@@ -1,5 +1,6 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'semantic-ui-css/semantic.min.css'
 import { BrowserRouter, Route } from 'react-router-dom';
 import Header from './components/header/header';
 import Home from './components/home/home';
