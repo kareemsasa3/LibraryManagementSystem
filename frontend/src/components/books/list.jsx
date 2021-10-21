@@ -9,8 +9,10 @@ class BookList extends Component {
             super(props);
             this.state = {
                 books: [],
-                loading: true
+                loading: true,
+                input: '',
             }
+            this.updateInput = this.updateInput.bind(this);
         }
 
 
@@ -24,8 +26,12 @@ class BookList extends Component {
         }
     }
 
+    updateInput(event) {
+        this.setState({input: event.target.value});
+    }
+
     render() {
-        const books = this.state.books;
+        let books = this.state.books;
 
         return (
             <Paper elevation={3} className="book-list">
@@ -33,7 +39,9 @@ class BookList extends Component {
                     <b>List of Books</b>
                 </Typography>
                 <br/>
-                <div class="ui icon input"><input type="text" placeholder="Search..."/><i aria-hidden="true" class="search icon"></i></div>
+                <div className="ui icon input"><input type="text" onChange={this.updateInput} placeholder="Search..."/><i aria-hidden="true" className="search icon"></i></div>
+                <br/>
+                {this.state.loading ? <div><br/><Typography variant="h6">Loading, please wait...</Typography></div> :
                 <TableContainer>
                     <Table sx={{minWidth: 0}}>
                         <TableHead>
@@ -56,9 +64,16 @@ class BookList extends Component {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.loading ? <h3>Loading, please wait...</h3> : books.map(book =>
+                             {books.filter((val)=>{
+                                    if(this.state.input == "") {
+                                        return val;
+                                    }
+                                    else if (val.title.toLowerCase().includes(this.state.input.toLowerCase())) {
+                                        return val;
+                                    }
+                                }).map(book =>
                                 <TableRow
-                                    key={book.title}
+                                    key={book.id}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 >
                                     <TableCell component="th" scope="row">{book.title}</TableCell>
@@ -68,7 +83,7 @@ class BookList extends Component {
                             )}
                         </TableBody>
                     </Table>
-                </TableContainer>
+                </TableContainer>}
             </Paper>
         );
     }
