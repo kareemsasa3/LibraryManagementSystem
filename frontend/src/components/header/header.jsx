@@ -1,22 +1,20 @@
 //link to react-bootstrap documentation
 //https://react-bootstrap.github.io/components/alerts/
-
+import { React, Component } from "react";
 import { Paper } from '@material-ui/core';
 import { Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
-import { useHistory } from 'react-router-dom';
 
-function Header() {
-    //replace the following line with correct access to Java DB
-    let user = JSON.parse(localStorage.getItem('user-info'))
-    console.log(user)
+class Header extends Component {
 
-    const history = useHistory();
-    //this function should change as well for Java DB
-    function logOut()
-    {
-        localStorage.clear();
+    constructor(props) {
+        super(props);
+        this.state = {
+            user: "John Snow",
+            loggedIn: true
+        }
     }
 
+render() {
     return(
         <div>
             <Paper elevation={1}>
@@ -31,13 +29,13 @@ function Header() {
                     <Navbar.Collapse className="justify-content-end">
                         {
                             /* change this section as well when Java DB works */
-                            localStorage.getItem('user-info') ?
+                            this.state.loggedIn ?
                             <>
-                                <NavDropdown title={user && user.name}>
+                                <NavDropdown title={this.state.user}>
                                     <NavDropdown.Item>Logout</NavDropdown.Item>
                                 </NavDropdown>
                                 <Navbar.Text>
-                                    Signed in as: <a href="/logout">Mark Otto</a>
+                                    Signed in as: <a href="/logout">{this.state.user}</a>
                                 </Navbar.Text>
                             </>
                             :
@@ -53,5 +51,6 @@ function Header() {
             </Paper>
         </div>
     )
+    }
 }
 export default Header;

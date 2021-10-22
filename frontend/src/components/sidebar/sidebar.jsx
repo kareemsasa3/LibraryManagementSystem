@@ -20,9 +20,9 @@ export default function Sidebar() {
     const linkText = ['Add New Book', 'Categories', 'Tags']
     return (
         <Paper elevation={3} className="sidebar">
-            {linkText.map(item => {
+            {linkText.map((item,index) => {
                 return(
-                <Link text={item} />
+                <Link key={index} text={item} />
             )})}
         </Paper>
     )

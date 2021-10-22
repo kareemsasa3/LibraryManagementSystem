@@ -1,6 +1,6 @@
 import React from 'react';
 import Sidebar from '../sidebar/sidebar';
-import { Grid, Typography } from '@material-ui/core';
+import { Grid, } from '@material-ui/core';
 import BookList from '../books/list';
 
 class Home extends React.Component {
