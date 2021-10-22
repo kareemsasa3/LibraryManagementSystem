@@ -32,6 +32,17 @@ class BookList extends Component {
 
     render() {
         let books = this.state.books;
+        books = books.filter((val)=>{
+                                        if(this.state.input === "") {
+                                            return val;
+                                        }
+                                        else if (val.title.toLowerCase().includes(this.state.input.toLowerCase())) {
+                                            return val;
+                                        }
+                                       });
+        let stringBooks = JSON.stringify(books);
+        stringBooks = stringBooks.replace(/_/g,' ');
+        books = JSON.parse(stringBooks);
 
         return (
             <Paper elevation={3} className="book-list">
@@ -64,14 +75,7 @@ class BookList extends Component {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                             {books.filter((val)=>{
-                                    if(this.state.input == "") {
-                                        return val;
-                                    }
-                                    else if (val.title.toLowerCase().includes(this.state.input.toLowerCase())) {
-                                        return val;
-                                    }
-                                }).map(book =>
+                             {books.map(book =>
                                 <TableRow
                                     key={book.id}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
