@@ -43,6 +43,7 @@ class BookList extends Component {
         let stringBooks = JSON.stringify(books);
         stringBooks = stringBooks.replace(/_/g,' ');
         books = JSON.parse(stringBooks);
+
         let splitByColon = []
         let genreString = ''
         for (var i = 0; i < books.length; i++) {
@@ -54,10 +55,13 @@ class BookList extends Component {
             for (var j = 0; j < separated.length; j++) {
                 separated[j] = separated[j].charAt(0).toUpperCase() + separated[j].slice(1);
                 let combined = separated.join(' ');
-                console.log(combined);
                 if (combined === 'Null')
                     combined = 'N/A';
                 books[i].genre = combined;
+            }
+
+            if (books[i].author === JSON.null) {
+                books[i].author = 'N/A';
             }
 
         }
@@ -71,6 +75,7 @@ class BookList extends Component {
                 <div className="ui icon input"><input type="text" onChange={this.updateInput} placeholder="Search..."/><i aria-hidden="true" className="search icon"></i></div>
                 <br/>
                 {this.state.loading ? <div><br/><Typography variant="h6">Loading, please wait...</Typography></div> :
+                books.length === 0 ? <div><br/><Typography variant="h6">No results found.</Typography></div> :
                 <TableContainer>
                     <Table sx={{minWidth: 0}}>
                         <TableHead>
