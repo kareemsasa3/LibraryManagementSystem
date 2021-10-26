@@ -32,6 +32,35 @@ class BookList extends Component {
 
     render() {
         let books = this.state.books;
+        books = books.filter((val)=>{
+                                        if(this.state.input === "") {
+                                            return val;
+                                        }
+                                        else if (val.title.toLowerCase().includes(this.state.input.toLowerCase())) {
+                                            return val;
+                                        }
+                                       });
+        let stringBooks = JSON.stringify(books);
+        stringBooks = stringBooks.replace(/_/g,' ');
+        books = JSON.parse(stringBooks);
+        let splitByColon = []
+        let genreString = ''
+        for (var i = 0; i < books.length; i++) {
+            const genre = JSON.stringify(books[i],["genre"]);
+            splitByColon = genre.split(':');
+            genreString = splitByColon[1];
+            genreString = genreString.replace('}', '').replaceAll('"', '');
+            let separated = genreString.split(' ');
+            for (var j = 0; j < separated.length; j++) {
+                separated[j] = separated[j].charAt(0).toUpperCase() + separated[j].slice(1);
+                let combined = separated.join(' ');
+                console.log(combined);
+                if (combined === 'Null')
+                    combined = 'N/A';
+                books[i].genre = combined;
+            }
+
+        }
 
         return (
             <Paper elevation={3} className="book-list">
@@ -64,14 +93,7 @@ class BookList extends Component {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                             {books.filter((val)=>{
-                                    if(this.state.input == "") {
-                                        return val;
-                                    }
-                                    else if (val.title.toLowerCase().includes(this.state.input.toLowerCase())) {
-                                        return val;
-                                    }
-                                }).map(book =>
+                             {books.map(book =>
                                 <TableRow
                                     key={book.id}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
