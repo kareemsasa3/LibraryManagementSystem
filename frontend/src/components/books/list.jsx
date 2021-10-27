@@ -20,6 +20,30 @@ class BookList extends Component {
         const response = await fetch('/api/books');
         const body = await response.json();
         this.setState({books: body});
+        this.setState({books: this.bubbleSortAlphabeticallyByTitle(this.state.books)});
+        
+                let splitByColon = []
+                let genreString = ''
+                for (var i = 0; i < this.state.books.length; i++) {
+                    const genre = JSON.stringify(this.state.books[i],["genre"]);
+                    splitByColon = genre.split(':');
+                    genreString = splitByColon[1];
+                    genreString = genreString.replace('}', '').replaceAll('"', '').replace('_', ' ');
+                    let separated = genreString.split(' ');
+                    for (var j = 0; j < separated.length; j++) {
+                        separated[j] = separated[j].charAt(0).toUpperCase() + separated[j].slice(1);
+                        let combined = separated.join(' ');
+                        if (combined === 'Null')
+                            combined = 'N/A';
+                        this.state.books[i].genre = combined;
+                    }
+        
+                    if (this.state.books[i].author === null) {
+                        this.state.books[i].author = 'N/A';
+                    }
+        
+                }
+        
         if (this.state.books != null)
         {
             this.setState({loading: false});
@@ -28,6 +52,32 @@ class BookList extends Component {
 
     updateInput(event) {
         this.setState({input: event.target.value});
+    }
+
+    compareStrings(a, b) {
+          // Assuming you want case-insensitive comparison
+          a = a.toLowerCase();
+          b = b.toLowerCase();
+
+          return (a < b) ? -1 : (a > b) ? 1 : 0;
+    }
+
+    bubbleSortAlphabeticallyByTitle(list) {
+        let n = list.length;
+        for (var i = 0; i < n-1; i++) {
+
+            for (var j = 0; j < n-i-1; j++) {
+                //console.log(list[j]);
+                if ( this.compareStrings(list[j].title, list[j+1].title) > 0 ) {
+                    let temp = list[j];
+                    list[j] = list[j+1];
+                    list[j+1] = temp;
+                }
+            }
+        }
+
+        return (list);
+
     }
 
     render() {
@@ -40,31 +90,6 @@ class BookList extends Component {
                                             return val;
                                         }
                                        });
-        let stringBooks = JSON.stringify(books);
-        stringBooks = stringBooks.replace(/_/g,' ');
-        books = JSON.parse(stringBooks);
-
-        let splitByColon = []
-        let genreString = ''
-        for (var i = 0; i < books.length; i++) {
-            const genre = JSON.stringify(books[i],["genre"]);
-            splitByColon = genre.split(':');
-            genreString = splitByColon[1];
-            genreString = genreString.replace('}', '').replaceAll('"', '');
-            let separated = genreString.split(' ');
-            for (var j = 0; j < separated.length; j++) {
-                separated[j] = separated[j].charAt(0).toUpperCase() + separated[j].slice(1);
-                let combined = separated.join(' ');
-                if (combined === 'Null')
-                    combined = 'N/A';
-                books[i].genre = combined;
-            }
-
-            if (books[i].author === JSON.null) {
-                books[i].author = 'N/A';
-            }
-
-        }
 
         return (
             <Paper elevation={3} className="book-list">
