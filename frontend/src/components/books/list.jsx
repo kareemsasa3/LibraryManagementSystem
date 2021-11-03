@@ -2,6 +2,7 @@ import { React, Component } from "react";
 import { Table, TableContainer, TableCell, TableHead, TableRow, TableBody, Typography, }
     from "@material-ui/core";
 import {Paper} from "@material-ui/core";
+import { Dropdown } from 'semantic-ui-react'
 
 class BookList extends Component {
 
@@ -11,8 +12,12 @@ class BookList extends Component {
                 books: [],
                 loading: true,
                 input: '',
+                genres: [],
+                genreQuery: '',
             }
             this.updateInput = this.updateInput.bind(this);
+            this.handleTitleClick = this.handleTitleClick.bind(this);
+            this.filterBooks = this.filterBooks.bind(this);
         }
 
 
@@ -20,7 +25,7 @@ class BookList extends Component {
         const response = await fetch('/api/books');
         const body = await response.json();
         this.setState({books: body});
-        this.setState({books: this.bubbleSortAlphabeticallyByTitle(this.state.books)});
+        this.setState({books: this.sortAlphabeticallyByTitle(this.state.books)});
         
                 let splitByColon = []
                 let genreString = ''
@@ -36,6 +41,10 @@ class BookList extends Component {
                         if (combined === 'Null')
                             combined = 'N/A';
                         this.state.books[i].genre = combined;
+
+                        if (this.state.genres.indexOf(combined) === -1 && j=== separated.length-1) {
+                            this.state.genres.push(combined);
+                        }
                     }
         
                     if (this.state.books[i].author === null) {
@@ -43,7 +52,7 @@ class BookList extends Component {
                     }
         
                 }
-        
+
         if (this.state.books != null)
         {
             this.setState({loading: false});
@@ -54,34 +63,20 @@ class BookList extends Component {
         this.setState({input: event.target.value});
     }
 
-    compareStrings(a, b) {
-          // Assuming you want case-insensitive comparison
-          a = a.toLowerCase();
-          b = b.toLowerCase();
-
-          return (a < b) ? -1 : (a > b) ? 1 : 0;
-    }
-
-    bubbleSortAlphabeticallyByTitle(list) {
-        let n = list.length;
-        for (var i = 0; i < n-1; i++) {
-
-            for (var j = 0; j < n-i-1; j++) {
-                //console.log(list[j]);
-                if ( this.compareStrings(list[j].title, list[j+1].title) > 0 ) {
-                    let temp = list[j];
-                    list[j] = list[j+1];
-                    list[j+1] = temp;
-                }
-            }
+    handleTitleClick(event) {
+        if (event.target.className === 'angle down icon') {
+            event.target.className = 'angle up icon';
+            this.sortAlphabeticallyByTitleDesc(this.state.books);
         }
-
-        return (list);
-
+        else {
+            event.target.className = 'angle down icon';
+            this.sortAlphabeticallyByTitle(this.state.books);
+        }
     }
 
-    render() {
+    filterBooks() {
         let books = this.state.books;
+
         books = books.filter((val)=>{
                                         if(this.state.input === "") {
                                             return val;
@@ -91,6 +86,80 @@ class BookList extends Component {
                                         }
                                        });
 
+        books = books.filter((val)=>{
+                                        if(this.state.genreQuery.length === 0) {
+                                           return val;
+                                       }
+                                        else if (this.state.genreQuery.some( g => val.genre.includes(g))) {
+                                           return val;
+                                        }
+                                       });
+
+        return books;
+    }
+
+    handleGenreChange = (e, {genreQuery,value}) => {
+        this.setState({genreQuery: value})
+        }
+
+    handleGenreSearchChange = (e, {genreQuery,value}) => {
+                                      this.setState({genreQuery: value})
+                                      console.log(this.state.genreQuery)
+                                      }
+
+    compareStrings(a, b) {
+          // Assuming you want case-insensitive comparison
+          a = a.toLowerCase();
+          b = b.toLowerCase();
+
+          return (a < b) ? -1 : (a > b) ? 1 : 0;
+    }
+
+    sortAlphabeticallyByTitle(list) {
+        let n = list.length;
+        for (var i = 0; i < n-1; i++) {
+
+            for (var j = 0; j < n-i-1; j++) {
+                if ( this.compareStrings(list[j].title, list[j+1].title) > 0 ) {
+                    let temp = list[j];
+                    list[j] = list[j+1];
+                    list[j+1] = temp;
+                }
+            }
+        }
+        this.forceUpdate();
+
+        return (list);
+
+    }
+
+    sortAlphabeticallyByTitleDesc(list) {
+            let n = list.length;
+            for (var i = 0; i < n-1; i++) {
+
+                for (var j = 0; j < n-i-1; j++) {
+                    if ( this.compareStrings(list[j].title, list[j+1].title) < 0 ) {
+                        let temp = list[j];
+                        list[j] = list[j+1];
+                        list[j+1] = temp;
+                    }
+                }
+            }
+            this.forceUpdate();
+
+            return (list);
+
+        }
+
+    render() {
+        let books = this.filterBooks();
+
+        let genresMap = this.state.genres.map( (genre, index) => ({
+            key: index,
+            text: genre,
+            value: genre,
+        }) )
+
         return (
             <Paper elevation={3} className="book-list">
                 <Typography variant="h4" color="inherit" component="div">
@@ -98,6 +167,18 @@ class BookList extends Component {
                 </Typography>
                 <br/>
                 <div className="ui icon input"><input type="text" onChange={this.updateInput} placeholder="Search..."/><i aria-hidden="true" className="search icon"></i></div>
+                <br/>
+                <br/>
+                <Dropdown
+                    placeholder='Filter by genres...'
+                    fluid
+                    multiple
+                    search
+                    selection
+                    options={genresMap}
+                    onChange={this.handleGenreChange}
+                    //onSearchChange={this.handleGenreSearchChange}
+                  />
                 <br/>
                 {this.state.loading ? <div><br/><Typography variant="h6">Loading, please wait...</Typography></div> :
                 books.length === 0 ? <div><br/><Typography variant="h6">No results found.</Typography></div> :
@@ -107,7 +188,7 @@ class BookList extends Component {
                             <TableRow>
                                 <TableCell>
                                 <Typography variant="body2" color="inherit" component="div">
-                                    Title
+                                    Title <i onClick={this.handleTitleClick} className='angle down icon'/>
                                 </Typography>
                                 </TableCell>
                                 <TableCell ><Typography variant="body2" color="inherit" component="div">
