@@ -177,7 +177,6 @@ class BookList extends Component {
                     selection
                     options={genresMap}
                     onChange={this.handleGenreChange}
-                    //onSearchChange={this.handleGenreSearchChange}
                   />
                 <br/>
                 {this.state.loading ? <div><br/><Typography variant="h6">Loading, please wait...</Typography></div> :
